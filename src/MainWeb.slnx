@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../Readme.md" />
+  </Folder>
+  <Project Path="../tests/Application.UnitTests/Application.UnitTests.csproj" />
+  <Project Path="Application/Application.csproj" />
+  <Project Path="Domain/Domain.csproj" />
+  <Project Path="Infrastructure/Infrastructure.csproj" />
+  <Project Path="MainWeb/MainWeb.csproj" />
+</Solution>
