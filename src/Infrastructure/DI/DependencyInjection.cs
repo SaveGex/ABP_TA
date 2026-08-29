@@ -23,7 +23,6 @@ namespace Infrastructure.DI
 
                 services.Configure<PricingOptions>(options =>
                     configuration.GetSection(PricingOptions.SectionName).Bind(options));
-                services.AddTransient<IRentalPricingService, RentalPricingService>();
 
                 services.AddTransient<IRentalPricingService, RentalPricingService>();
 
