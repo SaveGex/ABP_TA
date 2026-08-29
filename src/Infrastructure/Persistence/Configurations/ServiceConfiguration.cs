@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Entity Framework Core configuration for the <see cref="Service"/> entity.
 /// </summary>
-public class ServiceConfiguration : IEntityTypeConfiguration<Service>
+internal class ServiceConfiguration : IEntityTypeConfiguration<Service>
 {
     /// <summary>
     /// Configures the database schema mapping for additional services.

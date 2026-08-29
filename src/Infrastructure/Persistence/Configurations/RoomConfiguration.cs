@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Entity Framework Core configuration for the <see cref="Room"/> entity.
 /// </summary>
-public class RoomConfiguration : IEntityTypeConfiguration<Room>
+internal class RoomConfiguration : IEntityTypeConfiguration<Room>
 {
     /// <summary>
     /// Configures table properties, value objects, and encapsulation settings for rooms.

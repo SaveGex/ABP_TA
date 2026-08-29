@@ -13,6 +13,7 @@ namespace Domain.Entities
         public TimeSlot Slot { get; private set; } = null!;
         public Money TotalPrice { get; private set; } = null!;
         public BookingStatus Status { get; private set; }
+        public DateTime CreatedAt { get; private set; }
 
         private readonly List<BookedService> _services = new();
         public IReadOnlyCollection<BookedService> Services => _services.AsReadOnly();
@@ -22,10 +23,16 @@ namespace Domain.Entities
         /// <summary>
         /// Factory method to encapsulate creation logic and invariant validations for new bookings.
         /// </summary>
+        /// <param name="room">The conference room being booked.</param>
+        /// <param name="slot">The requested time slot for the reservation.</param>
+        /// <param name="selectedServices">The list of optional services chosen by the user.</param>
+        /// <param name="calculatedRoomCost">The room rental cost pre-calculated by the pricing service based on active time rules.</param>
+        /// <returns>A fully initialized and validated <see cref="Booking"/> aggregate instance.</returns>
         public static Booking Create(
             Room room,
             TimeSlot slot,
-            IEnumerable<Service> selectedServices)
+            IEnumerable<Service> selectedServices,
+            Money calculatedRoomCost)
         {
             var booking = new Booking
             {
@@ -35,8 +42,6 @@ namespace Domain.Entities
                 Status = BookingStatus.Confirmed
             };
 
-            var baseRoomCost = room.BaseHourlyRate.Amount * slot.DurationInHours;
-
             var bookedServices = selectedServices
                 .Select(service => new BookedService(service.Id, service.Name, service.Price))
                 .ToList();
@@ -44,7 +49,10 @@ namespace Domain.Entities
             booking._services.AddRange(bookedServices);
 
             var servicesCost = bookedServices.Sum(service => service.Price.Amount);
-            booking.TotalPrice = new Money(baseRoomCost + servicesCost, room.BaseHourlyRate.Currency);
+
+            booking.TotalPrice = new Money(
+                calculatedRoomCost.Amount + servicesCost,
+                calculatedRoomCost.Currency);
 
             return booking;
         }

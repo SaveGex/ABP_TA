@@ -29,7 +29,7 @@ namespace Application.UnitTests.Rooms.Queries
 
             var targetDate = DateTime.Today.AddDays(1);
             var bookedSlot = new TimeSlot(targetDate.AddHours(10), targetDate.AddHours(12));
-            var existingBooking = Booking.Create(room3, bookedSlot, new List<Service>());
+            var existingBooking = Booking.Create(room3, bookedSlot, new List<Service>(), new Money(100, "UAH"));
 
             var roomsDbSet = new List<Room> { room1, room2, room3 }.BuildMockDbSet();
             var bookingsDbSet = new List<Booking> { existingBooking }.BuildMockDbSet();
@@ -40,7 +40,7 @@ namespace Application.UnitTests.Rooms.Queries
             _contextMock.Setup(c => c.Services).Returns(servicesDbSet.Object);
 
             var query = new SearchAvailableRoomsQuery(
-                targetDate,
+                DateOnly.FromDateTime(targetDate),
                 TimeSpan.FromHours(10),
                 TimeSpan.FromHours(12),
                 10

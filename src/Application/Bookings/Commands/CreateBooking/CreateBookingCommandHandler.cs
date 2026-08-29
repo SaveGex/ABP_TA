@@ -2,18 +2,21 @@
 using Application.DTOs;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Bookings.Commands;
+namespace Application.Bookings.Commands.CreateBooking;
 
 public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, BookingResponseDTO>
 {
     private readonly IBookingDbContext _context;
+    private readonly IRentalPricingService _rentalPricingService;
 
-    public CreateBookingCommandHandler(IBookingDbContext context)
+    public CreateBookingCommandHandler(IBookingDbContext context, IRentalPricingService rentalPricingService)
     {
         _context = context;
+        _rentalPricingService = rentalPricingService;
     }
 
     public async Task<BookingResponseDTO> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
@@ -49,8 +52,10 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             throw new InvalidOperationException("The requested room is already booked for the specified time slot.");
         }
 
+        var roomCost = _rentalPricingService.CalculateRoomCost(room.BaseHourlyRate, request.slot);
+
         // 5. Create domain aggregate
-        var booking = Booking.Create(room, request.slot, selectedServices);
+        var booking = Booking.Create(room, request.slot, selectedServices, roomCost);
 
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync(cancellationToken);

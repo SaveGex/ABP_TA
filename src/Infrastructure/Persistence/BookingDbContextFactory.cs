@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence;
 /// <summary>
 /// Design-time factory for creating BookingDbContext instances during EF Core tooling operations.
 /// </summary>
-public class AppDbContextFactory : IDesignTimeDbContextFactory<BookingDbContext>
+internal class AppDbContextFactory : IDesignTimeDbContextFactory<BookingDbContext>
 {
     public BookingDbContext CreateDbContext(string[] args)
     {

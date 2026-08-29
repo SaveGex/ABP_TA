@@ -1,4 +1,4 @@
-﻿using Application.Bookings.Commands;
+﻿using Application.Bookings.Commands.CreateBooking;
 using Domain.ValueObjects;
 using FluentAssertions;
 

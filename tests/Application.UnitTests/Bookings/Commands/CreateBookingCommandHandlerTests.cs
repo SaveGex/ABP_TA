@@ -1,6 +1,7 @@
-﻿using Application.Bookings.Commands;
+﻿using Application.Bookings.Commands.CreateBooking;
 using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.Services;
 using Domain.ValueObjects;
 using FluentAssertions;
 using MockQueryable.Moq;
@@ -14,12 +15,17 @@ namespace Application.UnitTests.Bookings.Commands
     public class CreateBookingCommandHandlerTests
     {
         private readonly Mock<IBookingDbContext> _contextMock;
+        private readonly Mock<IRentalPricingService> _pricingServiceMock;
         private readonly CreateBookingCommandHandler _handler;
 
         public CreateBookingCommandHandlerTests()
         {
             _contextMock = new Mock<IBookingDbContext>();
-            _handler = new CreateBookingCommandHandler(_contextMock.Object);
+            _pricingServiceMock = new Mock<IRentalPricingService>();
+
+            _handler = new CreateBookingCommandHandler(
+                _contextMock.Object,
+                _pricingServiceMock.Object);
         }
 
         [Fact]
@@ -28,11 +34,20 @@ namespace Application.UnitTests.Bookings.Commands
             // Arrange
             var serviceId = Guid.NewGuid();
 
-            var room = Room.Create("Conference Room A", 20, new Money(100, "USD"));
+            var baseRate = new Money(100, "USD");
+            var room = Room.Create("Conference Room A", 20, baseRate);
             var roomId = room.Id;
             room.AddService(serviceId);
 
             var service = new Service(serviceId, "Projector", new Money(30, "USD"));
+
+            var slot = new TimeSlot(DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddHours(3));
+
+            // 2h * 100 = 200 USD
+            var expectedCalculatedRoomCost = new Money(200m, "USD");
+            _pricingServiceMock
+                .Setup(p => p.CalculateRoomCost(room.BaseHourlyRate, slot))
+                .Returns(expectedCalculatedRoomCost);
 
             var roomsDbSet = new List<Room> { room }.BuildMockDbSet();
             var servicesDbSet = new List<Service> { service }.BuildMockDbSet();
@@ -42,7 +57,6 @@ namespace Application.UnitTests.Bookings.Commands
             _contextMock.Setup(c => c.Services).Returns(servicesDbSet.Object);
             _contextMock.Setup(c => c.Bookings).Returns(bookingsDbSet.Object);
 
-            var slot = new TimeSlot(DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddHours(3));
             var command = new CreateBookingCommand(roomId, slot, new List<Guid> { serviceId });
 
             // Act
@@ -51,9 +65,10 @@ namespace Application.UnitTests.Bookings.Commands
             // Assert
             result.Should().NotBeNull();
             result.RoomId.Should().Be(roomId);
-            result.TotalPrice.Should().Be(230.0m); // (2 hours * 100) + 30 service
+            result.TotalPrice.Should().Be(230.0m);
             result.Services.Should().HaveCount(1);
 
+            _pricingServiceMock.Verify(p => p.CalculateRoomCost(room.BaseHourlyRate, slot), Times.Once);
             _contextMock.Verify(c => c.Bookings.Add(It.IsAny<Booking>()), Times.Once);
             _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -76,6 +91,9 @@ namespace Application.UnitTests.Bookings.Commands
             // Assert
             await action.Should().ThrowAsync<KeyNotFoundException>()
                 .WithMessage("*was not found*");
+
+            _pricingServiceMock.Verify(p => p.CalculateRoomCost(It.IsAny<Money>(), It.IsAny<TimeSlot>()), Times.Never);
+            _contextMock.Verify(c => c.Bookings.Add(It.IsAny<Booking>()), Times.Never);
         }
 
         [Fact]
@@ -86,7 +104,9 @@ namespace Application.UnitTests.Bookings.Commands
             var roomId = room.Id;
 
             var existingSlot = new TimeSlot(DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddHours(3));
-            var existingBooking = Booking.Create(room, existingSlot, new List<Service>());
+
+            var existingBookingCost = new Money(100m, "USD");
+            var existingBooking = Booking.Create(room, existingSlot, new List<Service>(), existingBookingCost);
 
             var roomsDbSet = new List<Room> { room }.BuildMockDbSet();
             var bookingsDbSet = new List<Booking> { existingBooking }.BuildMockDbSet();
@@ -96,7 +116,7 @@ namespace Application.UnitTests.Bookings.Commands
             _contextMock.Setup(c => c.Bookings).Returns(bookingsDbSet.Object);
             _contextMock.Setup(c => c.Services).Returns(servicesDbSet.Object);
 
-            // Overlapping slot
+            // Overlapping slot from 2 to 4 hours overlaps with existing 1-3
             var overlappingSlot = new TimeSlot(DateTime.UtcNow.AddHours(2), DateTime.UtcNow.AddHours(4));
             var command = new CreateBookingCommand(roomId, overlappingSlot, new List<Guid>());
 
@@ -106,6 +126,8 @@ namespace Application.UnitTests.Bookings.Commands
             // Assert
             await action.Should().ThrowAsync<InvalidOperationException>()
                 .WithMessage("*already booked*");
+
+            _contextMock.Verify(c => c.Bookings.Add(It.IsAny<Booking>()), Times.Never);
         }
     }
 }

@@ -3,9 +3,6 @@ using Application.DTOs;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Revenues.Queries.RevenueReport
 {
@@ -15,7 +12,7 @@ namespace Application.Revenues.Queries.RevenueReport
 
         public GetRevenueReportQueryHandler(IBookingDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<RevenueReportDTO> Handle(GetRevenueReportQuery request, CancellationToken cancellationToken)
@@ -23,39 +20,41 @@ namespace Application.Revenues.Queries.RevenueReport
             var bookingsQuery = _context.Bookings
                 .AsNoTracking()
                 .Where(b => b.Status != BookingStatus.Cancelled
-                         && b.Slot.Start >= request.From
-                         && b.Slot.End <= request.To);
+                         && b.CreatedAt >= request.From
+                         && b.CreatedAt <= request.To);
 
             if (request.RoomId.HasValue)
             {
                 bookingsQuery = bookingsQuery.Where(b => b.RoomId == request.RoomId.Value);
             }
 
-            var bookings = await bookingsQuery.ToListAsync(cancellationToken);
-            var rooms = await _context.Rooms.AsNoTracking().ToDictionaryAsync(r => r.Id, cancellationToken);
+            var roomsMap = await GetRoomsMapAsync(request.RoomId, cancellationToken);
 
-            decimal totalRevenue = 0m;
-            decimal servicesRevenue = 0m;
+            var rawBreakdowns = await bookingsQuery
+                .GroupBy(b => b.RoomId)
+                .Select(g => new
+                {
+                    RoomId = g.Key,
+                    TotalBookings = g.Count(),
+                    TotalRevenue = g.Sum(b => b.TotalPrice.Amount),
+                    ServicesRevenue = g.SelectMany(b => b.Services).Sum(s => s.Price.Amount)
+                })
+                .ToListAsync(cancellationToken);
 
-            foreach (var booking in bookings)
-            {
-                totalRevenue += booking.TotalPrice.Amount;
-                servicesRevenue += booking.Services.Sum(s => s.Price.Amount);
-            }
-
+            var totalBookingsCount = rawBreakdowns.Sum(r => r.TotalBookings);
+            var totalRevenue = rawBreakdowns.Sum(r => r.TotalRevenue);
+            var servicesRevenue = rawBreakdowns.Sum(r => r.ServicesRevenue);
             var roomRevenue = totalRevenue - servicesRevenue;
 
-            var roomBreakdowns = bookings
-                .GroupBy(b => b.RoomId)
-                .Select(g => new RoomRevenueBreakdownDTO(
-                    g.Key,
-                    rooms.TryGetValue(g.Key, out var room) ? room.Name : "Unknown Room",
-                    g.Count(),
-                    g.Sum(b => b.TotalPrice.Amount)
-                ))
+            var breakdownsDto = rawBreakdowns
+                .Select(r => new RoomRevenueBreakdownDTO(
+                    r.RoomId,
+                    roomsMap.GetValueOrDefault(r.RoomId, "Unknown Room"),
+                    r.TotalBookings,
+                    r.TotalRevenue))
                 .ToList();
 
-            var currency = bookings.FirstOrDefault()?.TotalPrice.Currency ?? "USD";
+            var currency = await GetReportCurrencyAsync(bookingsQuery, cancellationToken);
 
             return new RevenueReportDTO(
                 From: request.From,
@@ -63,10 +62,31 @@ namespace Application.Revenues.Queries.RevenueReport
                 TotalRevenue: totalRevenue,
                 RoomRevenue: roomRevenue,
                 ServicesRevenue: servicesRevenue,
-                TotalBookings: bookings.Count,
-                RoomBreakdowns: roomBreakdowns,
+                TotalBookings: totalBookingsCount,
+                RoomBreakdowns: breakdownsDto,
                 Currency: currency
             );
+        }
+
+        private async Task<Dictionary<Guid, string>> GetRoomsMapAsync(Guid? roomId, CancellationToken cancellationToken)
+        {
+            var query = _context.Rooms.AsNoTracking();
+
+            if (roomId.HasValue)
+            {
+                query = query.Where(r => r.Id == roomId.Value);
+            }
+
+            return await query.ToDictionaryAsync(r => r.Id, r => r.Name, cancellationToken);
+        }
+
+        private static async Task<string> GetReportCurrencyAsync(
+            IQueryable<Domain.Entities.Booking> bookingsQuery,
+            CancellationToken cancellationToken)
+        {
+            return await bookingsQuery
+                .Select(b => b.TotalPrice.Currency)
+                .FirstOrDefaultAsync(cancellationToken) ?? "UAH";
         }
     }
 }

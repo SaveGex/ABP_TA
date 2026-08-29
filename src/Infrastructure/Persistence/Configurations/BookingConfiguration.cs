@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Entity Framework Core configuration for the <see cref="Booking"/> entity.
 /// </summary>
-public class BookingConfiguration : IEntityTypeConfiguration<Booking>
+internal class BookingConfiguration : IEntityTypeConfiguration<Booking>
 {
     /// <summary>
     /// Configures the database schema mapping, relationships, and value objects for bookings.
@@ -79,5 +79,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Navigation(b => b.Services)
             .HasField("_services")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(b => b.CreatedAt).HasDefaultValueSql("(getdate())");
     }
 }

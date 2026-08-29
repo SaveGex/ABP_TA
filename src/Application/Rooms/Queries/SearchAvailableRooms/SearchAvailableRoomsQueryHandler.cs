@@ -14,60 +14,110 @@ namespace Application.Rooms.Queries.SearchAvailableRooms
 
         public SearchAvailableRoomsQueryHandler(IBookingDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<RoomResponseDTO>> Handle(SearchAvailableRoomsQuery request, CancellationToken cancellationToken)
+        public async Task<List<RoomResponseDTO>> Handle(
+            SearchAvailableRoomsQuery request,
+            CancellationToken cancellationToken)
         {
-            var startDateTime = request.date.Date.Add(request.from);
-            var endDateTime = request.date.Date.Add(request.to);
+            ValidateTimeRange(request.from, request.to);
 
-            var requestedSlot = new TimeSlot(startDateTime, endDateTime);
+            var roomsQuery = _context.Rooms.AsNoTracking();
 
-            // 1. Get room IDs that have active (non-cancelled) bookings overlapping with the requested slot
-            var occupiedRoomIds = await _context.Bookings
+            roomsQuery = ApplyCapacityFilter(roomsQuery, request.capacity);
+            roomsQuery = ApplyAvailabilityFilter(roomsQuery, request);
+
+            var availableRooms = await roomsQuery.ToListAsync(cancellationToken);
+
+            if (!availableRooms.Any())
+            {
+                return new List<RoomResponseDTO>();
+            }
+
+            return await MapToRoomResponseDtosAsync(availableRooms, cancellationToken);
+        }
+
+        private static void ValidateTimeRange(TimeSpan? from, TimeSpan? to)
+        {
+            if (from.HasValue && to.HasValue && from.Value >= to.Value)
+            {
+                throw new ArgumentException("'From' time must be earlier than 'To' time.");
+            }
+        }
+
+        private static IQueryable<Room> ApplyCapacityFilter(IQueryable<Room> query, int? capacity)
+        {
+            return capacity.HasValue
+                ? query.Where(r => r.Capacity >= capacity.Value)
+                : query;
+        }
+
+        private IQueryable<Room> ApplyAvailabilityFilter(IQueryable<Room> query, SearchAvailableRoomsQuery request)
+        {
+            if (!request.from.HasValue || !request.to.HasValue)
+            {
+                return query;
+            }
+
+            var requestedSlot = BuildTimeSlot(request.date, request.from.Value, request.to.Value);
+
+            var occupiedRoomIdsQuery = _context.Bookings
                 .AsNoTracking()
                 .Where(b => b.Status != BookingStatus.Cancelled
                          && b.Slot.Start < requestedSlot.End
                          && b.Slot.End > requestedSlot.Start)
                 .Select(b => b.RoomId)
+                .Distinct();
+
+            return query.Where(r => !occupiedRoomIdsQuery.Contains(r.Id));
+        }
+
+        private static TimeSlot BuildTimeSlot(DateOnly? date, TimeSpan from, TimeSpan to)
+        {
+            var baseDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+            var startDateTime = baseDate.ToDateTime(TimeOnly.FromTimeSpan(from));
+            var endDateTime = baseDate.ToDateTime(TimeOnly.FromTimeSpan(to));
+
+            return new TimeSlot(startDateTime, endDateTime);
+        }
+
+        private async Task<List<RoomResponseDTO>> MapToRoomResponseDtosAsync(
+            List<Room> rooms,
+            CancellationToken cancellationToken)
+        {
+            var requiredServiceIds = rooms
+                .SelectMany(r => r.ServiceIds)
                 .Distinct()
-                .ToListAsync(cancellationToken);
+                .ToList();
 
-            // 2. Fetch available rooms with required capacity
-            var availableRooms = await _context.Rooms
+            var relevantServices = await _context.Services
                 .AsNoTracking()
-                .Where(r => r.Capacity >= request.capacity && !occupiedRoomIds.Contains(r.Id))
-                .ToListAsync(cancellationToken);
-
-            // 3. Fetch all services to map full DTO details
-            var allServices = await _context.Services
-                .AsNoTracking()
+                .Where(s => requiredServiceIds.Contains(s.Id))
                 .ToDictionaryAsync(s => s.Id, cancellationToken);
 
-            var result = new List<RoomResponseDTO>();
+            return rooms.Select(room => new RoomResponseDTO(
+                Id: room.Id,
+                Name: room.Name,
+                Capacity: room.Capacity,
+                BaseHourlyRate: room.BaseHourlyRate,
+                Services: MapRoomServices(room.ServiceIds, relevantServices)
+            )).ToList();
+        }
 
-            foreach (var room in availableRooms)
-            {
-                var roomServices = room.ServiceIds
-                    .Where(id => allServices.ContainsKey(id))
-                    .Select(id => new BookedServiceDTO(
-                        id,
-                        allServices[id].Name,
-                        allServices[id].Price.Amount,
-                        allServices[id].Price.Currency))
-                    .ToList();
-
-                result.Add(new RoomResponseDTO(
-                    Id: room.Id,
-                    Name: room.Name,
-                    Capacity: room.Capacity,
-                    BaseHourlyRate: room.BaseHourlyRate,
-                    Services: roomServices
-                ));
-            }
-
-            return result;
+        private static List<BookedServiceDTO> MapRoomServices(
+            IEnumerable<Guid> serviceIds,
+            IReadOnlyDictionary<Guid, Service> servicesMap)
+        {
+            return serviceIds
+                .Where(servicesMap.ContainsKey)
+                .Select(id => servicesMap[id])
+                .Select(s => new BookedServiceDTO(
+                    s.Id,
+                    s.Name,
+                    s.Price.Amount,
+                    s.Price.Currency))
+                .ToList();
         }
     }
 }

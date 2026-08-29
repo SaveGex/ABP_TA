@@ -14,5 +14,7 @@ namespace Domain.Entities
             Name = name;
             Price = price;
         }
+
+        private Service() { }
     }
 }

@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Rooms.Queries.SearchAvailableRooms
 {
-    public record SearchAvailableRoomsQuery(DateTime date, TimeSpan from, TimeSpan to, int capacity) : IRequest<List<RoomResponseDTO>>;
+    public record SearchAvailableRoomsQuery(DateOnly? date = null, TimeSpan? from = null, TimeSpan? to = null, int? capacity = null) : IRequest<List<RoomResponseDTO>>;
 }

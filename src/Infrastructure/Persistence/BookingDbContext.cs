@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Infrastructure.Persistence
 {
-    public class BookingDbContext : DbContext, IBookingDbContext
+    internal class BookingDbContext : DbContext, IBookingDbContext
     {
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Service> Services { get; set; }
