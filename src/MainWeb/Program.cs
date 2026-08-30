@@ -1,5 +1,4 @@
 using Application;
-using Application.Common.Interfaces;
 using Infrastructure.DI;
 using MainWeb.Middleware;
 using Microsoft.OpenApi;
@@ -47,9 +46,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
-
 app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

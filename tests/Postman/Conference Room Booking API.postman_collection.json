@@ -1,0 +1,1819 @@
+{
+  "info": {
+    "_postman_id": "9d2224ac-82fe-42db-b588-dfb7025ef440",
+    "name": "Conference Room Booking API",
+    "description": "Domain-Driven Design REST API for managing conference rooms, bookings, and revenue analytics.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49046669"
+  },
+  "item": [
+    {
+      "name": "api",
+      "item": [
+        {
+          "name": "Rooms",
+          "item": [
+            {
+              "name": "/api/Rooms",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 201 and not 404', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                      "});",
+                      "",
+                      "if (pm.response.code === 201) {",
+                      "    const json = pm.response.json();",
+                      "    const roomId = json.id || (json.data && json.data.id);",
+                      "    if (roomId) {",
+                      "        pm.variables.set('createdRoomId', roomId);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// --- Dynamic Room Data for Load Testing ---",
+                      "const guid = pm.variables.replaceIn('{{$guid}}');",
+                      "const capacity = Math.floor(Math.random() * 491) + 10; // 10–500",
+                      "const hourlyRate = parseFloat((Math.random() * 490 + 10).toFixed(2)); // 10.00–500.00",
+                      "",
+                      "pm.variables.set('dynamicRoomName', 'Room-' + guid);",
+                      "pm.variables.set('dynamicCapacity', capacity);",
+                      "pm.variables.set('dynamicHourlyRate', hourlyRate);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"{{dynamicRoomName}}\",\n  \"capacity\": {{dynamicCapacity}},\n  \"baseHourlyRate\": {\n    \"amount\": {{dynamicHourlyRate}},\n    \"currency\": \"USD\"\n  },\n  \"serviceIds\": []\n}",
+                  "options": {
+                    "raw": {
+                      "language": "text"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/Rooms",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Rooms"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"string\",\n  \"capacity\": 1151,\n  \"baseHourlyRate\": {\n    \"amount\": 2599.194697555245,\n    \"currency\": \"string\"\n  },\n  \"serviceIds\": []\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                },
+                {
+                  "name": "Bad Request",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"string\",\n  \"capacity\": 1151,\n  \"baseHourlyRate\": {\n    \"amount\": 2599.194697555245,\n    \"currency\": \"string\"\n  },\n  \"serviceIds\": [\n    \"7ecec92c-e12a-1e1f-4c0f-b25b03a6e400\",\n    \"58e59475-779d-82c3-a636-f550cdfba7bf\"\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "/api/Rooms/:id",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 200 or 204', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([",
+                      "        200, 204",
+                      "    ]);",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "pm.environment.set(\"updatedRoomName\", \"Updated Room \" + Math.floor(Math.random() * 1000));\r",
+                      "pm.environment.set(\"updatedCapacity\", Math.floor(Math.random() * 30) + 10);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"{{createdRoomId}}\",\n  \"name\": \"{{updatedRoomName}}\",\n  \"capacity\": {{updatedCapacity}},\n  \"baseHourlyRate\": {\n    \"amount\": 120.0,\n    \"currency\": \"USD\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/Rooms/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Rooms",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{createdRoomId}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "No Content",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"id\": \"0bd76ae8-02f3-57e1-a28b-b1e6a587b93f\",\n  \"name\": \"string\",\n  \"capacity\": 5202,\n  \"baseHourlyRate\": {\n    \"amount\": 7141.681305759199,\n    \"currency\": \"string\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/:id",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        ":id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "No Content",
+                  "code": 204,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Bad Request",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"id\": \"0bd76ae8-02f3-57e1-a28b-b1e6a587b93f\",\n  \"name\": \"string\",\n  \"capacity\": 5202,\n  \"baseHourlyRate\": {\n    \"amount\": 7141.681305759199,\n    \"currency\": \"string\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/:id",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        ":id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                },
+                {
+                  "name": "Not Found",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"id\": \"0bd76ae8-02f3-57e1-a28b-b1e6a587b93f\",\n  \"name\": \"string\",\n  \"capacity\": 5202,\n  \"baseHourlyRate\": {\n    \"amount\": 7141.681305759199,\n    \"currency\": \"string\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/:id",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        ":id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "/api/Rooms/:id/services",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 200 or 204', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([",
+                      "        200, 204",
+                      "    ]);",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Автоматично шукаємо існуючий serviceId із сідерених кімнат через пошук\r",
+                      "pm.sendRequest({\r",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/Rooms/search?date=2026-08-30&capacity=1',\r",
+                      "    method: 'GET'\r",
+                      "}, function (err, response) {\r",
+                      "    if (err || response.code !== 200) {\r",
+                      "        console.error(\"Failed to fetch rooms for serviceId extraction\", err);\r",
+                      "        return;\r",
+                      "    }\r",
+                      "\r",
+                      "    const rooms = response.json();\r",
+                      "    let foundServiceId = null;\r",
+                      "\r",
+                      "    for (const room of rooms) {\r",
+                      "        if (room.services && room.services.length > 0) {\r",
+                      "            foundServiceId = typeof room.services[0] === 'object' ? room.services[0].id : room.services[0];\r",
+                      "            break;\r",
+                      "        }\r",
+                      "        if (room.serviceIds && room.serviceIds.length > 0) {\r",
+                      "            foundServiceId = room.serviceIds[0];\r",
+                      "            break;\r",
+                      "        }\r",
+                      "    }\r",
+                      "\r",
+                      "    if (foundServiceId) {\r",
+                      "        pm.environment.set(\"existingServiceId\", foundServiceId);\r",
+                      "    }\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"roomId\": \"{{createdRoomId}}\",\n  \"serviceId\": \"{{existingServiceId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/Rooms/:id/services",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Rooms",
+                    ":id",
+                    "services"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{createdRoomId}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "No Content",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"roomId\": \"cceffe02-3f11-50d2-c2b1-4ffec025bbea\",\n  \"serviceId\": \"37a3ef1f-788e-6960-a550-3653afb22e16\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/:id/services",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        ":id",
+                        "services"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "No Content",
+                  "code": 204,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Bad Request",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"roomId\": \"cceffe02-3f11-50d2-c2b1-4ffec025bbea\",\n  \"serviceId\": \"37a3ef1f-788e-6960-a550-3653afb22e16\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/:id/services",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        ":id",
+                        "services"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                },
+                {
+                  "name": "Not Found",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"roomId\": \"cceffe02-3f11-50d2-c2b1-4ffec025bbea\",\n  \"serviceId\": \"37a3ef1f-788e-6960-a550-3653afb22e16\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/:id/services",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        ":id",
+                        "services"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "/api/Rooms/search",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "})",
+                      "",
+                      "pm.test('Response is an array', function () {",
+                      "    const json = pm.response.json();",
+                      "    pm.expect(json).to.be.an('array');",
+                      "})",
+                      "",
+                      "pm.test('Each room has required fields', function () {",
+                      "    const json = pm.response.json();",
+                      "    if (json.length > 0) {",
+                      "        json.forEach(function (room) {",
+                      "            pm.expect(room).to.have.property('id');",
+                      "            pm.expect(room).to.have.property('name');",
+                      "            pm.expect(room).to.have.property('capacity');",
+                      "            pm.expect(room.capacity).to.be.a('number');",
+                      "            pm.expect(room).to.have.property('baseHourlyRate');",
+                      "            pm.expect(room.baseHourlyRate).to.have.property('amount');",
+                      "            pm.expect(room.baseHourlyRate).to.have.property('currency');",
+                      "        });",
+                      "    }",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Rooms/search?date=2026-08-10&capacity=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Rooms",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "date",
+                      "value": "2026-08-10"
+                    },
+                    {
+                      "key": "from",
+                      "value": "string",
+                      "disabled": true
+                    },
+                    {
+                      "key": "to",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "capacity",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Rooms/search?date=2017-08-10T08:05:38.318Z&from=string&to=string&capacity=7615",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Rooms",
+                        "search"
+                      ],
+                      "query": [
+                        {
+                          "key": "date",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "from",
+                          "value": "string"
+                        },
+                        {
+                          "key": "to",
+                          "value": "string"
+                        },
+                        {
+                          "key": "capacity",
+                          "value": "7615"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"6c908264-3941-e80f-cade-52d6923c2be6\",\n    \"name\": \"string\",\n    \"capacity\": 6359,\n    \"baseHourlyRate\": {\n      \"amount\": 653.0165275526311,\n      \"currency\": \"string\"\n    },\n    \"services\": [\n      {\n        \"id\": \"141e58aa-05e1-4895-1cea-4a9063983418\",\n        \"name\": \"string\",\n        \"price\": 7727.85954463378,\n        \"currency\": \"string\"\n      },\n      {\n        \"id\": \"c4dd6625-8628-5f93-915d-5e1ef4f0bf04\",\n        \"name\": \"string\",\n        \"price\": 9922.39531506166,\n        \"currency\": \"string\"\n      }\n    ]\n  },\n  {\n    \"id\": \"f8dbe140-af87-e194-2316-5891c835e962\",\n    \"name\": \"string\",\n    \"capacity\": 3823,\n    \"baseHourlyRate\": {\n      \"amount\": 3023.614100184724,\n      \"currency\": \"string\"\n    },\n    \"services\": [\n      {\n        \"id\": \"f39d609c-5501-6d19-87aa-257c430ac926\",\n        \"name\": \"string\",\n        \"price\": 8021.982316927292,\n        \"currency\": \"string\"\n      },\n      {\n        \"id\": \"2c2a65d6-6f3f-ea2a-1e38-65224aca74e4\",\n        \"name\": \"string\",\n        \"price\": 1902.60572036423,\n        \"currency\": \"string\"\n      }\n    ]\n  }\n]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Bookings",
+          "item": [
+            {
+              "name": "/api/Bookings",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 201', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                      "});",
+                      "",
+                      "if (pm.response.code === 201) {",
+                      "    const json = pm.response.json();",
+                      "    const bookingId = json.id || (json.data && json.data.id);",
+                      "    if (bookingId) {",
+                      "        pm.variables.set('createdBookingId', bookingId);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// --- Dynamic Non-Overlapping Booking Slot for Load Testing ---",
+                      "const randomDays = Math.floor(Math.random() * 500) + 1; // 1–500 days offset",
+                      "const randomHour = Math.floor(Math.random() * 20);       // 0–19 hour offset within that day",
+                      "",
+                      "const start = new Date();",
+                      "start.setDate(start.getDate() + randomDays);",
+                      "start.setHours(randomHour, 0, 0, 0);",
+                      "",
+                      "const end = new Date(start.getTime() + 60 * 60 * 1000); // +1 hour",
+                      "",
+                      "pm.variables.set('dynamicStart', start.toISOString());",
+                      "pm.variables.set('dynamicEnd', end.toISOString());"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"roomId\": \"{{createdRoomId}}\",\n  \"slot\": {\n    \"start\": \"{{dynamicStart}}\",\n    \"end\": \"{{dynamicEnd}}\"\n  },\n  \"serviceIds\": []\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/Bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Bookings"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"roomId\": \"0a8556e5-a711-4921-a479-404e2edf39d0\",\n  \"slot\": {\n    \"start\": \"1946-11-29T12:40:00.153Z\",\n    \"end\": \"1989-07-20T04:14:33.691Z\"\n  },\n  \"serviceIds\": []\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Bookings",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Bookings"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Bad Request",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"roomId\": \"ebc03368-d9fa-865c-facf-cca326aeddcf\",\n  \"slot\": {\n    \"start\": \"1946-11-29T12:40:00.153Z\",\n    \"end\": \"1989-07-20T04:14:33.691Z\"\n  },\n  \"serviceIds\": [\n    \"1d0e1c2a-8d66-3401-6b4f-81bd768f3c00\",\n    \"99f72184-2651-c816-dc26-3a18cc0ad59f\"\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Bookings",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Bookings"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                },
+                {
+                  "name": "Conflict",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"roomId\": \"ebc03368-d9fa-865c-facf-cca326aeddcf\",\n  \"slot\": {\n    \"start\": \"1946-11-29T12:40:00.153Z\",\n    \"end\": \"1989-07-20T04:14:33.691Z\"\n  },\n  \"serviceIds\": []\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Bookings",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Bookings"
+                      ]
+                    }
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "/api/Bookings/:id",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 200', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([",
+                      "        200",
+                      "    ]);",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Bookings/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Bookings",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{createdBookingId}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Bookings/:id",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Bookings",
+                        ":id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"id\": \"7d0e6f09-da62-d0c0-f9ea-3b82d123258e\",\n  \"roomId\": \"cf8eb5be-9d0e-61e6-b768-3e83d3c8a2e9\",\n  \"start\": \"1958-10-29T11:19:02.595Z\",\n  \"end\": \"1957-03-09T01:00:15.034Z\",\n  \"services\": [\n    {\n      \"id\": \"1a6cd037-2f85-7cc9-9f46-cc15b8a5fd96\",\n      \"name\": \"string\",\n      \"price\": 9368.695801388967,\n      \"currency\": \"string\"\n    },\n    {\n      \"id\": \"81497ad8-f76f-ec8a-b48b-474d99b2d7e2\",\n      \"name\": \"string\",\n      \"price\": 6724.1035760805735,\n      \"currency\": \"string\"\n    }\n  ],\n  \"totalPrice\": 6205.724872504043,\n  \"currency\": \"string\",\n  \"status\": \"string\"\n}"
+                },
+                {
+                  "name": "Not Found",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Bookings/:id",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Bookings",
+                        ":id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "/api/Bookings",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Response is an array\", function () {",
+                      "    const res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('array');",
+                      "});",
+                      "",
+                      "pm.test(\"Each booking has required fields\", function () {",
+                      "    const res = pm.response.json();",
+                      "    res.forEach(booking => {",
+                      "        pm.expect(booking).to.have.property('id');",
+                      "        pm.expect(booking).to.have.property('roomId');",
+                      "        // Перевірка на наявність будь-якого з варіантів найменування інтервалу",
+                      "        pm.expect(booking).to.have.any.keys('slot', 'start', 'startTime');",
+                      "    });",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Bookings"
+                  ],
+                  "query": [
+                    {
+                      "key": "RoomId",
+                      "value": "3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "disabled": true
+                    },
+                    {
+                      "key": "From",
+                      "value": "2017-08-10T08:05:38.318Z",
+                      "disabled": true
+                    },
+                    {
+                      "key": "To",
+                      "value": "2017-08-10T08:35:38.318Z",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Bookings?RoomId=3e98cbbb-d57e-f6f7-a91a-591426113958&From=2017-08-10T08:05:38.318Z&To=2017-08-10T08:05:38.318Z",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Bookings"
+                      ],
+                      "query": [
+                        {
+                          "key": "RoomId",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        },
+                        {
+                          "key": "From",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "To",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"c2ad9e85-7df3-02fc-99d9-29b1f5fe5018\",\n    \"roomId\": \"b05fbbd8-3079-c38d-b6fd-3555514e8ff5\",\n    \"start\": \"1959-07-07T04:01:48.255Z\",\n    \"end\": \"1994-04-21T15:04:06.003Z\",\n    \"services\": [\n      {\n        \"id\": \"c79f6ea3-ae5d-5f68-6aeb-c436c0a500b8\",\n        \"name\": \"string\",\n        \"price\": 6203.135236226205,\n        \"currency\": \"string\"\n      },\n      {\n        \"id\": \"c2588861-c950-9b35-876d-51cb5aa9122b\",\n        \"name\": \"string\",\n        \"price\": 2211.3859929378664,\n        \"currency\": \"string\"\n      }\n    ],\n    \"totalPrice\": 649.052109627245,\n    \"currency\": \"string\",\n    \"status\": \"string\"\n  },\n  {\n    \"id\": \"9c2734f7-478e-e637-2912-0748a8a8d583\",\n    \"roomId\": \"5af2630c-70ec-e1ce-727c-f2f44a693bc9\",\n    \"start\": \"1980-08-15T06:41:46.145Z\",\n    \"end\": \"1961-03-20T01:18:56.495Z\",\n    \"services\": [\n      {\n        \"id\": \"bcacbf05-9f7d-a184-5447-3bdd237a8678\",\n        \"name\": \"string\",\n        \"price\": 4240.621491671165,\n        \"currency\": \"string\"\n      },\n      {\n        \"id\": \"e83366d9-4435-33da-1f42-9c317d1ef92c\",\n        \"name\": \"string\",\n        \"price\": 573.669334787762,\n        \"currency\": \"string\"\n      }\n    ],\n    \"totalPrice\": 4399.065604520146,\n    \"currency\": \"string\",\n    \"status\": \"string\"\n  }\n]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Reports",
+          "item": [
+            {
+              "name": "/api/Reports/revenue",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 200 or 400', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([",
+                      "        200,",
+                      "        400",
+                      "    ]);",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Reports/revenue?From=2017-08-10T08:05:38.318Z&To=2026-08-31T08:05:38.318Z",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Reports",
+                    "revenue"
+                  ],
+                  "query": [
+                    {
+                      "key": "From",
+                      "value": "2017-08-10T08:05:38.318Z"
+                    },
+                    {
+                      "key": "To",
+                      "value": "2026-08-31T08:05:38.318Z"
+                    },
+                    {
+                      "key": "RoomId",
+                      "value": "3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Reports/revenue?From=2017-08-10T08:05:38.318Z&To=2017-08-10T08:05:38.318Z&RoomId=3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Reports",
+                        "revenue"
+                      ],
+                      "query": [
+                        {
+                          "key": "From",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "To",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "RoomId",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"from\": \"2002-05-08T16:28:07.488Z\",\n  \"to\": \"2000-09-05T04:45:46.069Z\",\n  \"totalRevenue\": 2804.16595062442,\n  \"roomRevenue\": 9358.298354541736,\n  \"servicesRevenue\": 5835.185932033822,\n  \"totalBookings\": 2412,\n  \"roomBreakdowns\": [\n    {\n      \"roomId\": \"2c1967bb-db9c-32c2-1db8-88902508885a\",\n      \"roomName\": \"string\",\n      \"bookingCount\": 8572,\n      \"totalRevenue\": 9088.417079702282\n    },\n    {\n      \"roomId\": \"0b5cb86e-1a15-6603-b89e-1b96507e0df6\",\n      \"roomName\": \"string\",\n      \"bookingCount\": 9205,\n      \"totalRevenue\": 7564.290198843744\n    }\n  ],\n  \"currency\": \"string\"\n}"
+                },
+                {
+                  "name": "Bad Request",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Reports/revenue?From=2017-08-10T08:05:38.318Z&To=2017-08-10T08:05:38.318Z&RoomId=3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Reports",
+                        "revenue"
+                      ],
+                      "query": [
+                        {
+                          "key": "From",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "To",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "RoomId",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "/api/Reports/utilization",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code is 200 or 400', function () {",
+                      "    pm.expect(pm.response.code).to.be.oneOf([",
+                      "        200,",
+                      "        400",
+                      "    ]);",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Reports/utilization?From=2026-08-29T08:05:38.318Z&To=2026-08-31T08:05:38.318Z",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Reports",
+                    "utilization"
+                  ],
+                  "query": [
+                    {
+                      "key": "From",
+                      "value": "2026-08-29T08:05:38.318Z"
+                    },
+                    {
+                      "key": "To",
+                      "value": "2026-08-31T08:05:38.318Z"
+                    },
+                    {
+                      "key": "RoomId",
+                      "value": "3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Reports/utilization?From=2017-08-10T08:05:38.318Z&To=2017-08-10T08:05:38.318Z&RoomId=3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Reports",
+                        "utilization"
+                      ],
+                      "query": [
+                        {
+                          "key": "From",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "To",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "RoomId",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"from\": \"2015-05-11T16:32:16.958Z\",\n  \"to\": \"1957-07-09T08:19:53.207Z\",\n  \"overallUtilizationPercentage\": 5130.98702085864,\n  \"roomDetails\": [\n    {\n      \"roomId\": \"0a3fcd07-4ea4-75dd-c361-4769491a056b\",\n      \"roomName\": \"string\",\n      \"totalBookedHours\": 7829.787783992909,\n      \"totalAvailableHours\": 8884.979068796903,\n      \"utilizationPercentage\": 2054.8503482693736\n    },\n    {\n      \"roomId\": \"a651e8c1-b4f1-d9cc-1220-23366ec33753\",\n      \"roomName\": \"string\",\n      \"totalBookedHours\": 7728.9980068932755,\n      \"totalAvailableHours\": 1209.9403865065772,\n      \"utilizationPercentage\": 824.3081315918166\n    }\n  ]\n}"
+                },
+                {
+                  "name": "Bad Request",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "text/plain"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/Reports/utilization?From=2017-08-10T08:05:38.318Z&To=2017-08-10T08:05:38.318Z&RoomId=3e98cbbb-d57e-f6f7-a91a-591426113958",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "Reports",
+                        "utilization"
+                      ],
+                      "query": [
+                        {
+                          "key": "From",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "To",
+                          "value": "2017-08-10T08:05:38.318Z"
+                        },
+                        {
+                          "key": "RoomId",
+                          "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "/api/Rooms/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([",
+                  "        204",
+                  "    ]);",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Rooms/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Rooms",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{createdRoomId}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "No Content",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Rooms/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Rooms",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                    }
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/Rooms/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "Rooms",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "3e98cbbb-d57e-f6f7-a91a-591426113958"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 6178,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          "console.log('\\n' + '━'.repeat(55));",
+          "console.log('▶  ' + pm.request.method + '  ' + pm.request.url.toString());",
+          "console.log('   Request : ' + pm.info.requestName);",
+          "const body = pm.request.body;",
+          "if (body && body.toString().trim()) {",
+          "    try {",
+          "        const parsed = JSON.parse(body.toString());",
+          "        console.log('   Body    : ' + JSON.stringify(parsed, null, 2));",
+          "    } catch(e) {",
+          "        console.log('   Body    : ' + body.toString().trim());",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          "console.log('◀  ' + pm.response.code + ' ' + pm.response.status + '  (' + pm.response.responseTime + 'ms)');",
+          "",
+          "const _results = [];",
+          "const _origTest = pm.test;",
+          "",
+          "pm.test = function(name, fn) {",
+          "    let passed = false;",
+          "    let errMsg = '';",
+          "    try {",
+          "        fn.call(this);",
+          "        passed = true;",
+          "    } catch (e) {",
+          "        errMsg = (e && e.message) ? e.message : String(e);",
+          "    }",
+          "    _results.push({ name, passed, errMsg });",
+          "    return _origTest.call(pm, name, fn);",
+          "};",
+          "",
+          "_origTest.call(pm, '(test log)', function() {",
+          "    pm.test = _origTest;",
+          "",
+          "    const real = _results.filter(r => r.name !== '(test log)');",
+          "    if (real.length === 0) {",
+          "        console.log('   Tests   : (none)');",
+          "    } else {",
+          "        console.log('   Tests   :');",
+          "        real.forEach(function(r) {",
+          "            const icon = r.passed ? '✅' : '❌';",
+          "            const detail = (!r.passed && r.errMsg) ? '  →  ' + r.errMsg : '';",
+          "            console.log('     ' + icon + ' ' + r.name + detail);",
+          "        });",
+          "        const p = real.filter(r => r.passed).length;",
+          "        const f = real.filter(r => !r.passed).length;",
+          "        console.log('   Summary : ' + p + ' passed' + (f > 0 ? ', ' + f + ' failed ⚠️' : ' ✅'));",
+          "    }",
+          "    console.log('━'.repeat(55));",
+          "    pm.expect(true).to.be.true;",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:80"
+    }
+  ]
+}

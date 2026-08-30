@@ -61,7 +61,8 @@ public class CreateRoomCommandHandler : IRequestHandler<CreateRoomCommand, RoomR
             Name: room.Name,
             Capacity: room.Capacity,
             BaseHourlyRate: room.BaseHourlyRate,
-            Services: services
+            Services: services,
+            CreatedAt: room.CreatedAt
         );
     }
 }

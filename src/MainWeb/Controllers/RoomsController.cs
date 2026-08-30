@@ -25,8 +25,8 @@ namespace MainWeb.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Guid>> Create([FromBody] CreateRoomCommand command)
         {
-            var id = await Mediator.Send(command);
-            return Created(string.Empty, id);
+            var data = await Mediator.Send(command);
+            return Created(string.Empty, data);
         }
 
         /// <summary>

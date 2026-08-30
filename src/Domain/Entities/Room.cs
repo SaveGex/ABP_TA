@@ -1,8 +1,9 @@
-﻿using Domain.ValueObjects;
+﻿using Domain.Contracts;
+using Domain.ValueObjects;
 
 namespace Domain.Entities
 {
-    public class Room
+    public class Room : ISoftDelete
     {
         public Guid Id { get; private set; }
         public string Name { get; private set; } = string.Empty;
@@ -10,6 +11,10 @@ namespace Domain.Entities
         public Money BaseHourlyRate { get; private set; } = null!;
         private readonly List<Guid> _serviceIds = new();
         public IReadOnlyCollection<Guid> ServiceIds => _serviceIds.AsReadOnly();
+
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+        public DateTime? DeletedAt { get; private set; } = null;
+
 
         // Required by EF Core for materialization of entities with nested value objects
         private Room() { }
@@ -23,5 +28,10 @@ namespace Domain.Entities
             if (!_serviceIds.Contains(serviceId)) _serviceIds.Add(serviceId);
         }
         public void RemoveService(Guid serviceId) => _serviceIds.Remove(serviceId);
+
+        public void Delete()
+        {
+            DeletedAt = DateTime.UtcNow;
+        }
     }
 }

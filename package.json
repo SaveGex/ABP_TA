@@ -1,0 +1,6 @@
+{
+	"scripts": {
+		"up": "node -e \"if (!require('fs').existsSync('.env')) require('fs').copyFileSync('.env.example', '.env')\" && docker compose up --build",
+		"postman-tests": "npx newman run \".\\tests\\Postman\\Conference Room Booking API.postman_collection.json\" -e \".\\tests\\Postman\\Conference Room Booking API.postman_environment.json\" -k"
+	}
+}

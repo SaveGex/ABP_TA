@@ -25,8 +25,8 @@ namespace MainWeb.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<ActionResult<Guid>> Create([FromBody] CreateBookingCommand command)
         {
-            var id = await Mediator.Send(command);
-            return Created(nameof(GetById), new { id });
+            var data = await Mediator.Send(command);
+            return Created(nameof(GetById), data);
         }
 
         /// <summary>

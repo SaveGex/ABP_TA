@@ -2,5 +2,11 @@
 
 namespace Application.DTOs
 {
-    public record RoomResponseDTO(Guid Id, string Name, int Capacity, Money BaseHourlyRate, IReadOnlyCollection<BookedServiceDTO> Services);
+    public record RoomResponseDTO(
+        Guid Id,
+        string Name,
+        int Capacity,
+        Money BaseHourlyRate,
+        IReadOnlyCollection<BookedServiceDTO> Services,
+        DateTime CreatedAt);
 }

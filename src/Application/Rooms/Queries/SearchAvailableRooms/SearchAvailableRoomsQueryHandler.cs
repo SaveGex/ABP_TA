@@ -101,7 +101,8 @@ namespace Application.Rooms.Queries.SearchAvailableRooms
                 Name: room.Name,
                 Capacity: room.Capacity,
                 BaseHourlyRate: room.BaseHourlyRate,
-                Services: MapRoomServices(room.ServiceIds, relevantServices)
+                Services: MapRoomServices(room.ServiceIds, relevantServices),
+                CreatedAt: room.CreatedAt
             )).ToList();
         }
 

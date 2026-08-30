@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -20,7 +19,9 @@ namespace Infrastructure.Migrations
                     Capacity = table.Column<int>(type: "int", nullable: false),
                     BaseHourlyRateAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     BaseHourlyRateCurrency = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
-                    ServiceIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ServiceIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {

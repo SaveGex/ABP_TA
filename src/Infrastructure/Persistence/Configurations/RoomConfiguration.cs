@@ -15,6 +15,8 @@ internal class RoomConfiguration : IEntityTypeConfiguration<Room>
     /// <param name="builder">The builder to be used to configure the entity type.</param>
     public void Configure(EntityTypeBuilder<Room> builder)
     {
+        builder.HasQueryFilter(r => r.DeletedAt == null);
+
         builder.ToTable("Rooms");
 
         builder.HasKey(r => r.Id);
@@ -27,7 +29,7 @@ internal class RoomConfiguration : IEntityTypeConfiguration<Room>
             .IsRequired();
 
         // Value Object mapping: BaseHourlyRate Money
-        builder.OwnsOne(r => r.BaseHourlyRate, money =>
+        builder.ComplexProperty(r => r.BaseHourlyRate, money =>
         {
             money.Property(m => m.Amount)
                 .HasColumnName("BaseHourlyRateAmount")
@@ -44,5 +46,13 @@ internal class RoomConfiguration : IEntityTypeConfiguration<Room>
         builder.Property(r => r.ServiceIds)
             .HasField("_serviceIds")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(r => r.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .IsRequired();
+
+        builder.Property(r => r.DeletedAt)
+            .IsRequired(false);
+
     }
 }

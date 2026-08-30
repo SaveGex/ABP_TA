@@ -2,6 +2,7 @@
 using Domain.Services;
 using Infrastructure.Configuration;
 using Infrastructure.Persistence;
+using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +16,17 @@ namespace Infrastructure.DI
         {
             public IServiceCollection AddInfrastructure(IConfiguration configuration)
             {
-                services.AddDbContext<BookingDbContext>(options =>
-                    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                services.AddSingleton<SoftDeleteInterceptor>();
+
+                services.AddDbContext<BookingDbContext>((sp, options) =>
+                {
+                    var interceptor = sp.GetRequiredService<SoftDeleteInterceptor>();
+
+                    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+                           .AddInterceptors([
+                               interceptor,
+                            ]);
+                });
 
                 services.AddScoped<IBookingDbContext>(provider =>
                     provider.GetRequiredService<BookingDbContext>());
